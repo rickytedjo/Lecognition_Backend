@@ -1,3 +1,5 @@
-# Ignore Env
 .env
+.env.production
+.env.dev
 /venv/
+/storage/*.key
