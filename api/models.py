@@ -10,7 +10,7 @@ def image_path(instance, filename):
 class User(models.Model):
     username = models.CharField(max_length=50)
     email = models.EmailField()
-    password = models.CharField(max_length=16)
+    password = models.CharField(max_length=64)
 
     class Meta:
         db_table = 'User'
@@ -28,6 +28,16 @@ class Scan(models.Model):
     img = models.ImageField(upload_to=image_path)
     diagnosis = models.ForeignKey(Disease, on_delete=models.CASCADE)
     accuracy = models.DecimalField(max_digits=5, decimal_places=2)
+    desc = models.TextField(blank=True)
 
     class Meta:
         db_table = 'Scan'
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    disease = models.ForeignKey(Disease, on_delete=models.CASCADE)
+    date = models.PositiveBigIntegerField()
+    status = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'Bookmark'
