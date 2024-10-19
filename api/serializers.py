@@ -22,7 +22,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
         model = Disease
         fields = '__all__'
 
-class ScanSerializer(serializers.ModelSerializer):
+class GetScanSerializer(serializers.ModelSerializer):
     user = SafeUserSerializer()
     diagnosis = DiseaseSerializer()
 
@@ -30,10 +30,20 @@ class ScanSerializer(serializers.ModelSerializer):
         model = Scan
         fields = '__all__'
 
-class BookmarkSerializer(serializers.ModelSerializer):
+class ScanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Scan
+        fields = '__all__'
+
+class GetBookmarkSerializer(serializers.ModelSerializer):
     user = SafeUserSerializer()
     disease = DiseaseSerializer()
 
+    class Meta:
+        model = Bookmark
+        fields = '__all__'
+
+class BookmarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmark
         fields = '__all__'
