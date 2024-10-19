@@ -100,11 +100,11 @@ def disease_api(request, id=None):
 def scan_api(request, id=None):
     if (request.method == 'GET') & (id == None):
         scan = Scan.objects.all()
-        serializer = ScanSerializer(scan, many=True)
+        serializer = GetScanSerializer(scan, many=True)
         return Response(serializer.data)
     if (request.method == 'GET') & (id != None):
         scan = Scan.objects.get(id = id)
-        serializer = ScanSerializer(scan)
+        serializer = GetScanSerializer(scan)
         return Response(serializer.data)
     
     ## GET
@@ -123,11 +123,11 @@ def scan_api(request, id=None):
 def bookmark_api(request, id=None):
     if (request.method == 'GET') & (id == None):
         bookmark = Bookmark.objects.all()
-        serializer = BookmarkSerializer(bookmark, many=True)
+        serializer = GetBookmarkSerializer(bookmark, many=True)
         return Response(serializer.data)
     if (request.method == 'GET') & (id != None):
         bookmark = Bookmark.objects.get(id = id)
-        serializer = BookmarkSerializer(bookmark)
+        serializer = GetBookmarkSerializer(bookmark)
         return Response(serializer.data)
     if (request.method == 'POST'):
         try:
