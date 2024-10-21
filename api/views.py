@@ -8,7 +8,6 @@ from api.models import *
 from api.serializers import *
 from django.http import Http404
 
-
 # Create your views here.
 
 @api_view(['GET','POST','PUT','DELETE'])

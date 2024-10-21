@@ -28,7 +28,7 @@ SECRET_KEY = get_random_secret_key()
 
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
