@@ -2,6 +2,7 @@ from rest_framework import serializers
 from api.models import *
 import hashlib
 from django.conf import settings
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,6 +17,12 @@ class SafeUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id','username']
+
+
+class AuthSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id','email','password']
 
 class DiseaseSerializer(serializers.ModelSerializer):
     class Meta:
