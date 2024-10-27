@@ -5,6 +5,7 @@ cffi==1.17.1
 Django==5.1.1
 django-filter==24.3
 djangorestframework==3.15.2
+djangorestframework-simplejwt==5.3.1
 environs==11.0.0
 Markdown==3.7
 marshmallow==3.22.0
@@ -12,6 +13,7 @@ mysqlclient==2.2.4
 packaging==24.1
 pillow==10.4.0
 pycparser==2.22
+PyJWT==2.9.0
 python-dotenv==1.0.1
 sqlparse==0.5.1
 tzdata==2024.2

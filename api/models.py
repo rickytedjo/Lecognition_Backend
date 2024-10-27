@@ -26,7 +26,7 @@ class Scan(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     datetime = models.PositiveBigIntegerField()
     img = models.ImageField(upload_to=image_path)
-    diagnosis = models.ForeignKey(Disease, on_delete=models.CASCADE)
+    disease = models.ForeignKey(Disease, on_delete=models.CASCADE)
     accuracy = models.DecimalField(max_digits=5, decimal_places=2)
     desc = models.TextField(blank=True)
 
