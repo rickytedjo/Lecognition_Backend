@@ -109,6 +109,22 @@ def disease_api(request, id=None):
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+@parser_classes([FormParser, MultiPartParser])
+def user_scans_api(request, id=None):
+    token = decode_token(request.headers.get('Authorization'))
+    user_id = get_id_from_token(token)
+    if token is not None:
+        if (request.method == 'GET') & (id == None):
+            scan = Scan.objects.all().filter(user_id = user_id)
+            serializer = GetScanSerializer(scan, many=True)
+            return Response(serializer.data)
+        if (request.method == 'GET') & (id != None):
+            scan = Scan.objects.all().filter(user_id = id)
+            serializer = GetScanSerializer(scan, many=True)
+            return Response(serializer.data)
+
+
 @api_view(['GET','POST','PUT','DELETE'])
 @parser_classes([FormParser, MultiPartParser])
 def scan_api(request, id=None):
@@ -126,6 +142,8 @@ def scan_api(request, id=None):
         
         ## GET
 
+        ## PUT - emg gk ada
+
         if (request.method == 'DELETE'):
             try:
                 instance = Scan.objects.get(id = id)
@@ -134,6 +152,20 @@ def scan_api(request, id=None):
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+@api_view(['GET'])
+@parser_classes([FormParser, MultiPartParser])
+def user_bookmark_api(request, id=None):
+    token = decode_token(request.headers.get('Authorization'))
+    user_id = get_id_from_token(token)
+    if token is not None:
+        if (request.method == 'GET') & (id == None):
+            bookmark = Bookmark.objects.all().filter(user_id = user_id)
+            serializer = GetBookmarkSerializer(bookmark, many=True)
+            return Response(serializer.data)
+        if (request.method == 'GET') & (id != None):
+            bookmark = Bookmark.objects.all().filter(user_id = id)
+            serializer = GetBookmarkSerializer(bookmark, many=True)
+            return Response(serializer.data)
 
 @api_view(['GET','POST','PUT','DELETE'])
 @parser_classes([FormParser, MultiPartParser])
