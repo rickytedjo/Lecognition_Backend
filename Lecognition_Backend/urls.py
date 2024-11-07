@@ -4,8 +4,9 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from api import views
 
 urlpatterns = [ 
-    path('api/user/<int:id>', views.user_api),
     path('api/user/all',views.user_all_api), # GET all
+    path('api/user/<int:id>', views.user_api),
+    path('api/user', views.user_api),
     path('api/scan/user/',views.user_scans_api),
     path('api/scan/<int:id>',views.scan_api),
     path('api/scan',views.scan_api), # GET all
