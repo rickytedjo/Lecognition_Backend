@@ -37,7 +37,6 @@ class Bookmark(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     disease = models.ForeignKey(Disease, on_delete=models.CASCADE)
     date = models.PositiveBigIntegerField()
-    status = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'Bookmark'
