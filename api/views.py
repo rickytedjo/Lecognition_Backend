@@ -16,7 +16,7 @@ def decode_token(request):
             # Extract the token part
             token = request.split(' ')[1]
             return token
-        return Response('No Authorization')
+        else: return Response('No Authorization')
     except Exception as e:
         print("Token decoding error:", e)
 
@@ -27,9 +27,11 @@ def get_id_from_token(token):
             decoded_token = AccessToken(token)
             user_id = decoded_token['user_id']
             return user_id
-        return Response('No Authorization')
+        else: return Response('No Authorization')
     except Exception as e:
         print("Token decoding error:", e)
+
+
 
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
@@ -39,9 +41,12 @@ def user_api(request, id=None):
     user_id = get_id_from_token(token)
     if token is not None:
         if (request.method == 'GET') & (id == None):
-            users = User.objects.all()
-            serializer = UserSerializer(users, many=True)
-            return Response(serializer.data)
+            try:
+                user = User.objects.get(id = user_id)
+                serializer = UserSerializer(user)
+                return Response(serializer.data)
+            except Exception as e:
+                return Response({"error": str(e)}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         if (request.method == 'GET') & (id != None):
             try:
@@ -70,7 +75,20 @@ def user_api(request, id=None):
                 return Response('Data Deleted', status=status.HTTP_204_NO_CONTENT)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else :
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+@parser_classes([FormParser, MultiPartParser, JSONParser])
+def user_all_api(request):
+    token = decode_token(request.headers.get('Authorization'))  
+    if token is not None:
+        if (request.method == 'GET'):
+            users = User.objects.all()
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data)
+    else :
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @parser_classes([FormParser, MultiPartParser, JSONParser])
@@ -114,21 +132,22 @@ def disease_api(request, id=None):
                 return Response('Data Deleted', status=status.HTTP_204_NO_CONTENT)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else :
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(['GET'])
 @parser_classes([FormParser, MultiPartParser])
-def user_scans_api(request, id=None):
+def user_scans_api(request):
     token = decode_token(request.headers.get('Authorization'))
     user_id = get_id_from_token(token)
     if token is not None:
-        if (request.method == 'GET') & (id == None):
+        if (request.method == 'GET'):
             scan = Scan.objects.all().filter(user_id = user_id)
             serializer = GetScanSerializer(scan, many=True)
             return Response(serializer.data)
-        if (request.method == 'GET') & (id != None):
-            scan = Scan.objects.all().filter(user_id = id)
-            serializer = GetScanSerializer(scan, many=True)
-            return Response(serializer.data)
+    else :
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET','POST','PUT','DELETE'])
@@ -146,32 +165,58 @@ def scan_api(request, id=None):
             serializer = GetScanSerializer(scan)
             return Response(serializer.data)
 
-        # GET
+        # POST
+        if (request.method == 'POST'):
+            try:
+                data = request.data.copy()
+                data['user'] = user_id
+                serializer = ScanSerializer(data=data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response('Data Created', status=status.HTTP_201_CREATED)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        ## PUT - emg gk ada
+
+        ## PUT - HANYA UNTUK DESC, DATA KOLOM LAIN TIDAK DIMAKSUD UNTUK DIGANTI
+        if (request.method == 'PUT'):
+            try:
+                instance = Scan.objects.get(id=id)
+                serializer = ScanSerializer(
+                    instance, data=request.data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response('Data Updated', status=status.HTTP_200_OK)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         if (request.method == 'DELETE'):
             try:
                 instance = Scan.objects.get(id=id)
+                # Delete image from storage
                 instance.delete()
                 return Response('Data Deleted', status=status.HTTP_204_NO_CONTENT)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else :
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         
 @api_view(['GET'])
 @parser_classes([FormParser, MultiPartParser])
-def user_bookmark_api(request, id=None):
+def user_bookmark_api(request):
     token = decode_token(request.headers.get('Authorization'))
     user_id = get_id_from_token(token)
     if token is not None:
-        if (request.method == 'GET') & (id == None):
+        if (request.method == 'GET'):
             bookmark = Bookmark.objects.all().filter(user_id = user_id)
             serializer = GetBookmarkSerializer(bookmark, many=True)
             return Response(serializer.data)
-        if (request.method == 'GET') & (id != None):
-            bookmark = Bookmark.objects.all().filter(user_id = id)
-            serializer = GetBookmarkSerializer(bookmark, many=True)
-            return Response(serializer.data)
+    else :
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(['GET','POST','PUT','DELETE'])
 @parser_classes([FormParser, MultiPartParser])
@@ -189,11 +234,13 @@ def bookmark_api(request, id=None):
             return Response(serializer.data)
         if (request.method == 'POST'):
             try:
-                serializer = BookmarkSerializer(data=request.data)
+                data = request.data.copy()
+                data['user'] = user_id
+                serializer = BookmarkSerializer(data=data)
                 if serializer.is_valid():
                     serializer.save()
                     return Response('Data Created', status=status.HTTP_201_CREATED)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                else: return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         if (request.method == 'DELETE'):
@@ -203,6 +250,10 @@ def bookmark_api(request, id=None):
                 return Response('Data Deleted', status=status.HTTP_204_NO_CONTENT)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+    else :
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 @api_view(['POST'])
@@ -227,11 +278,12 @@ def login(request):
                         # Generate access from refresh
                         'access': str(refresh.access_token),
                     }, status=status.HTTP_200_OK)
-                return Response({'error': 'Invalid email or password'}, status=status.HTTP_404_NOT_FOUND)
+                else: return Response({'error': 'Invalid email or password'}, status=status.HTTP_404_NOT_FOUND)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(e)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
 
 
 @api_view(['POST'])
