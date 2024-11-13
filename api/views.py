@@ -37,6 +37,7 @@ def get_id_from_token(token):
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @parser_classes([FormParser, MultiPartParser, JSONParser])
 def user_api(request, id=None):
+    print(request.headers)
     token = decode_token(request.headers.get('Authorization'))
     user_id = get_id_from_token(token)
     if token is not None:
@@ -58,7 +59,7 @@ def user_api(request, id=None):
 
         if (request.method == 'PUT'):
             try:
-                instance = User.objects.get(id=id)
+                instance = User.objects.get(id=id) if id != None else User.objects.get(id=user_id)
                 serializer = UserSerializer(
                     instance, data=request.data, partial=True)
                 if serializer.is_valid():
@@ -68,7 +69,7 @@ def user_api(request, id=None):
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        if (request.method == 'DELETE'):
+        if (request.method == 'DELETE') & (id != None):
             try:
                 instance = User.objects.get(id=id)
                 instance.delete()
