@@ -11,6 +11,7 @@ class User(models.Model):
     username = models.CharField(max_length=50)
     email = models.EmailField()
     password = models.CharField(max_length=64)
+    avatar = models.IntegerField(default = 1)
 
     class Meta:
         db_table = 'User'
