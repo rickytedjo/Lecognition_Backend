@@ -21,7 +21,6 @@ urlpatterns = [
     # Jika access token expired, bisa di refresh dengan refresh token dan dapat refresh token baru
     # Jika refresh token juga expired, token refresh bakal return error 401 atau unauthorized dan client side harus logout
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
