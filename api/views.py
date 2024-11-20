@@ -248,7 +248,7 @@ def bookmark_api(request, id=None):
                 serializer = BookmarkSerializer(data=data)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response('Data Created', status=status.HTTP_201_CREATED)
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
                 else:
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
