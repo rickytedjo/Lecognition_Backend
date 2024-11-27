@@ -8,6 +8,55 @@ from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from api.models import *
 from api.serializers import *
 from django.http import Http404
+from keras.models import load_model
+import cv2 as cv
+import numpy as np
+from PIL import Image
+from io import BytesIO
+import base64
+from keras.utils import to_categorical
+from sklearn.preprocessing import LabelEncoder; label_encoder = LabelEncoder()
+
+DATA_DIR = 'dataset'
+IMG_SIZE = (224,224)
+
+def load_data(data_dir):
+    images, labels = [], []
+    for label in os.listdir(data_dir):
+        class_dir = os.path.join(data_dir, label)
+        if os.path.isdir(class_dir):
+            for file in os.listdir(class_dir):
+                img_path = os.path.join(class_dir, file)
+                img = cv.imread(img_path)
+                if img is not None:
+                    img = cv.resize(img, IMG_SIZE)
+                    images.append(img)
+                    labels.append(label)
+    return np.array(images), np.array(labels)
+
+# Muat data
+X, y = load_data(DATA_DIR)
+
+# Encoding label
+label_encoder = LabelEncoder()
+y_encoded = label_encoder.fit_transform(y)
+y_categorical = to_categorical(y_encoded)
+
+model = load_model('saved_model')
+
+def prediction(image):
+    if image is None:
+        print(f"Error: Image not found")
+        return None
+
+    img_resized = cv.resize(image, (224,224))
+    img_array = np.expand_dims(img_resized, axis=0)
+
+    prediction = model.predict(img_array)
+    predicted_class = np.argmax(prediction, axis=1)[0]
+    disease_name = label_encoder.classes_[predicted_class]
+
+    return disease_name
 
 
 def decode_token(request):
@@ -179,12 +228,34 @@ def scan_api(request, id=None):
         if (request.method == 'POST'):
             try:
                 data = request.data.copy()
-                data['user'] = user_id
-                serializer = ScanSerializer(data=data)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                if data['img'] is not None:
+                    uploaded_file = request.FILES.get("img")
+                    if not uploaded_file:
+                        return Response({"error": "No image file provided"}, status=400)
+
+                    try:
+                        # Read the raw byte data from the uploaded file
+                        image_data = uploaded_file.read()
+
+                        # Open the byte data as a PIL Image
+                        image = Image.open(BytesIO(image_data))
+
+                        # Convert the image to a NumPy array if needed
+                        image_array = np.array(image)
+
+                        disease = prediction(image_array)
+                        data['disease'] = disease
+                        return Response({"disease":disease},status=200)
+
+                    except Exception as e:
+                        return Response({"error": str(e)}, status=400)
+
+                # data['user'] = user_id
+                # serializer = ScanSerializer(data=data)
+                # if serializer.is_valid():
+                #     serializer.save()
+                #     return Response('Data Created', status=status.HTTP_201_CREATED)
+                # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
