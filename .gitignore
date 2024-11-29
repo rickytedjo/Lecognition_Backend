@@ -2,4 +2,4 @@
 .env.production
 .env.dev
 /venv/
-/storage/*.key
+/storage/*
