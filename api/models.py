@@ -5,7 +5,9 @@ import os
 def image_path(instance, filename):
     filename = datetime.now().strftime('%Y%m%d') + ' - ' + filename
 
-    return os.path.join('storage/image/',filename)
+    os.path.join('storage/image/',filename)
+
+    return filename
 
 class User(models.Model):
     username = models.CharField(max_length=50)
@@ -26,13 +28,23 @@ class Disease(models.Model):
 class Scan(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     datetime = models.PositiveBigIntegerField()
-    img = models.ImageField(upload_to=image_path)
+    img = models.ImageField(upload_to='storage/image')
     disease = models.ForeignKey(Disease, on_delete=models.CASCADE)
     accuracy = models.DecimalField(max_digits=5, decimal_places=2)
     desc = models.TextField(blank=True)
 
     class Meta:
         db_table = 'Scan'
+
+    def save(self, *args, **kwargs):
+        # Check if the image is being uploaded
+        if self.img:
+            # Generate a new filename
+            new_filename = datetime.now().strftime('%Y%m%d') + ' - ' + self.img.name
+            self.img.name = new_filename
+        # Call the original save method
+        super().save(*args, **kwargs)
+    
 
 class Bookmark(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

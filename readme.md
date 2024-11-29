@@ -1,7 +1,7 @@
 # Lecognition API
 API for Lecognition mobile app
 ## Setup
-1. Pastikan python sudah terinstall
+1. Pastikan python v3.11.0 sudah terinstall
 2. Buka root folder project dan buat folder venv
 ```
 py -m venv venv

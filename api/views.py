@@ -55,8 +55,9 @@ def prediction(image):
     prediction = model.predict(img_array)
     predicted_class = np.argmax(prediction, axis=1)[0]
     disease_name = label_encoder.classes_[predicted_class]
+    confidence = np.max(prediction)
 
-    return disease_name
+    return disease_name, confidence
 
 
 def decode_token(request):
@@ -243,10 +244,18 @@ def scan_api(request, id=None):
                         # Convert the image to a NumPy array if needed
                         image_array = np.array(image)
 
-                        disease = prediction(image_array)
-                        data['disease'] = disease
-                        return Response({"disease":disease},status=200)
-
+                        disease_name, confidence = prediction(image_array)
+                        disease = Disease.objects.filter(name__icontains=disease_name).first()
+                        data['user'] = user_id
+                        data['desc'] = ''
+                        data['disease'] = disease.id
+                        data['accuracy'] = confidence * 100
+                        #data['datetime'] = 
+                        serializer = ScanSerializer(data=data)
+                        if serializer.is_valid():
+                            serializer.save()
+                            return Response({"disease":disease_name,"accuracy":confidence},status=status.HTTP_200_OK)
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     except Exception as e:
                         return Response({"error": str(e)}, status=400)
 
@@ -268,7 +277,8 @@ def scan_api(request, id=None):
                 if serializer.is_valid():
                     serializer.save()
                     return Response('Data Updated', status=status.HTTP_200_OK)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
