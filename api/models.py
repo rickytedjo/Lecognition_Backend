@@ -40,7 +40,7 @@ class Scan(models.Model):
         # Check if the image is being uploaded
         if self.img:
             # Generate a new filename
-            new_filename = datetime.now().strftime('%Y%m%d') + ' - ' + self.img.name
+            new_filename = str(int(round(datetime.now().timestamp()))) + ' - ' + self.img.name
             self.img.name = new_filename
         # Call the original save method
         super().save(*args, **kwargs)
