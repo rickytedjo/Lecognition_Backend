@@ -16,6 +16,7 @@ from io import BytesIO
 import base64
 from keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder; label_encoder = LabelEncoder()
+from decimal import Decimal, getcontext
 
 DATA_DIR = 'dataset'
 IMG_SIZE = (224,224)
@@ -246,10 +247,14 @@ def scan_api(request, id=None):
 
                         disease_name, confidence = prediction(image_array)
                         disease = Disease.objects.filter(name__icontains=disease_name).first()
+                        print(disease_name)
+                        print(confidence)
+                        if disease.id is None:
+                            return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
                         data['user'] = user_id
                         data['desc'] = ''
                         data['disease'] = disease.id
-                        data['accuracy'] = confidence * 100
+                        data['accuracy'] = float("{:.2f}".format(round(confidence * 100, 2)))
                         #data['datetime'] = 
                         serializer = ScanSerializer(data=data)
                         if serializer.is_valid():

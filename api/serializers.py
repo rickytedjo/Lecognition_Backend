@@ -12,10 +12,10 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['password'] = hashlib.sha256((validated_data['password']+settings.SECRET_KEY).encode('utf-8')).hexdigest()
         return super(UserSerializer, self).create(validated_data)
-    def create(self, validated_data):
+    def update(self, validated_data):
         if validated_data['password'] is not None:
             validated_data['password'] = hashlib.sha256((validated_data['password']+settings.SECRET_KEY).encode('utf-8')).hexdigest()
-        return super(UserSerializer, self).create(validated_data)
+        return super(UserSerializer, self).update(validated_data)
     
 class SafeUserSerializer(serializers.ModelSerializer):
     class Meta:
