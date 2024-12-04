@@ -63,7 +63,7 @@ def prediction(image):
 
 def match(image, threshold=0.5):
     template = cv.imread('asset\leaf_comp1.jpg')
-    template = cv.cvtColor(image,cv.COLOR_RGB2BGR)
+    template = cv.cvtColor(template,cv.COLOR_RGB2BGR)
     image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
 
     image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
