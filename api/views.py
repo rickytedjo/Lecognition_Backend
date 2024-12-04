@@ -259,7 +259,7 @@ def scan_api(request, id=None):
                         serializer = ScanSerializer(data=data)
                         if serializer.is_valid():
                             serializer.save()
-                            return Response({"disease":disease_name,"accuracy":confidence},status=status.HTTP_200_OK)
+                            return Response({"disease":disease.id,"accuracy":confidence},status=status.HTTP_200_OK)
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     except Exception as e:
                         return Response({"error": str(e)}, status=400)

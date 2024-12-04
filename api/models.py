@@ -23,7 +23,15 @@ class Disease(models.Model):
     desc = models.TextField(blank=True)
 
     class Meta:
-        db_table = 'Disease'
+        db_table = 'Disease' 
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    disease = models.ForeignKey(Disease, on_delete=models.CASCADE)
+    date = models.PositiveBigIntegerField()
+
+    class Meta:
+        db_table = 'Bookmark'
 
 class Scan(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -44,12 +52,4 @@ class Scan(models.Model):
             self.img.name = new_filename
         # Call the original save method
         super().save(*args, **kwargs)
-    
-
-class Bookmark(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    disease = models.ForeignKey(Disease, on_delete=models.CASCADE)
-    date = models.PositiveBigIntegerField()
-
-    class Meta:
-        db_table = 'Bookmark'
+   
