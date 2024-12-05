@@ -7,20 +7,20 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from api.models import *
 from api.serializers import *
-from django.http import Http404
 from keras.models import load_model
 import cv2 as cv
 import numpy as np
 from PIL import Image
 from io import BytesIO
-import base64
 import os
 from keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder; label_encoder = LabelEncoder()
-from decimal import Decimal, getcontext
 
 DATA_DIR = 'dataset'
 IMG_SIZE = (224,224)
+
+TEMPLATE_DIR ='asset\comparator'
+templates = os.listdir(TEMPLATE_DIR)
 
 
 def load_data(data_dir):
@@ -66,9 +66,8 @@ def match(image, threshold=0.5):
     image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
     image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     
-    templates = os.listdir('/asset/comparator')
     for template in templates:
-        template_img = cv.imread('/asset/comparator/' + str(template))
+        template_img = cv.imread(TEMPLATE_DIR + '/' +str(template))
         template_img = cv.cvtColor(template_img,cv.COLOR_RGB2BGR)
         template_gray = cv.cvtColor(template_img, cv.COLOR_BGR2GRAY)
 
