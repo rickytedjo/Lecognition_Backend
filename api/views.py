@@ -66,9 +66,9 @@ def match(image, threshold=0.5):
     image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
     image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     
-    templates = os.listdir('../asset/comparator')
+    templates = os.listdir('/asset/comparator')
     for template in templates:
-        template_img = cv.imread('../asset/comparator/' + str(template))
+        template_img = cv.imread('/asset/comparator/' + str(template))
         template_img = cv.cvtColor(template_img,cv.COLOR_RGB2BGR)
         template_gray = cv.cvtColor(template_img, cv.COLOR_BGR2GRAY)
 
