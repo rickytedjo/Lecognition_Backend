@@ -14,6 +14,7 @@ import numpy as np
 from PIL import Image
 from io import BytesIO
 import base64
+import os
 from keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder; label_encoder = LabelEncoder()
 from decimal import Decimal, getcontext
@@ -62,51 +63,29 @@ def prediction(image):
     return disease_name, confidence
 
 def match(image, threshold=0.5):
-    template = cv.imread('asset\leaf_comp1.jpg')
-    template = cv.cvtColor(template,cv.COLOR_RGB2BGR)
     image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
-
     image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-    template_gray = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
+    
+    templates = os.listdir('../asset/comparator')
+    for template in templates:
+        template_img = cv.imread('../asset/comparator/' + str(template))
+        template_img = cv.cvtColor(template_img,cv.COLOR_RGB2BGR)
+        template_gray = cv.cvtColor(template_img, cv.COLOR_BGR2GRAY)
 
-    h, w = template_gray.shape
-    image_plot = image.copy()
-    rectangles = []
-
-    scales = [0.6,0.8, 0.9, 1.0, 1.1]
-    for scale in scales:
-        image_gray = cv.resize(image_gray, (int(w * scale), int(h * scale)))
-        resized_template = cv.resize(template_gray, (int(w * scale), int(h * scale)))
-        h_resized, w_resized = resized_template.shape
+        h, w = template_gray.shape
+       
+        image_gray = cv.resize(image_gray, (w, h))
+        resized_template = cv.resize(template_gray, (w, h))
 
         res = cv.matchTemplate(image_gray, resized_template, cv.TM_CCOEFF_NORMED)
         res_copy = res.copy()
 
+        min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res_copy)
         # Search threshold
-        while True:
-            min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res_copy)
-            if max_val < threshold:
-                break
+        if max_val >= threshold:
+            return True
 
-            rectangles.append([max_loc[0], max_loc[1], w_resized, h_resized])
-            res_copy[max_loc[1]:max_loc[1] + h_resized, max_loc[0]:max_loc[0] + w_resized] = 0
-
-    rectangles, _ = cv.groupRectangles(rectangles, groupThreshold=1, eps=0.3)
-
-    # Print rectangle
-    cropped_image = None
-    for (x, y, w, h) in rectangles:
-        cv.rectangle(image_plot, (x, y), (x + w, y + h), (0, 255, 255), 2)
-        # Crop the first detected rectangle
-        if cropped_image is None:
-            cropped_image = image[y:y+h, x:x+w]
-        else:
-            cropped_image = image[y:y+h, x:x+w]
-    
-    if cropped_image is not None:
-        return True
-    else:
-        return False
+    return False
 
 
 
