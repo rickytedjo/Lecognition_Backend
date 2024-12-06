@@ -8,8 +8,11 @@ urlpatterns = [
     path('api/user/<int:id>', views.user_api),
     path('api/user', views.user_api),
     path('api/scan/user/',views.user_scans_api),
+    path('api/scan/tree/<int:id>',views.tree_scans_api),
     path('api/scan/<int:id>',views.scan_api),
     path('api/scan',views.scan_api), # GET all
+    path('api/tree/<int:id>',views.tree_api),
+    path('api/tree',views.tree_api),
     path('api/disease/<int:id>', views.disease_api),
     path('api/disease',views.disease_api), # GET all
     path('api/bookmark/user/',views.user_bookmark_api),

@@ -27,7 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
 class SafeUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id','username']
+        fields = ['id','username','avatar']
 
 
 class AuthSerializer(serializers.ModelSerializer):
@@ -40,18 +40,26 @@ class DiseaseSerializer(serializers.ModelSerializer):
         model = Disease
         fields = '__all__'
 
-class GetScanSerializer(serializers.ModelSerializer):
-    user = SafeUserSerializer()
-    diagnosis = DiseaseSerializer()
-
-    class Meta:
-        model = Scan
-        fields = '__all__'
-
 class ScanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Scan
         fields = '__all__'
+
+
+class TreeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tree
+        fields = '__all__'
+
+class GetScanSerializer(serializers.ModelSerializer):
+    disease = DiseaseSerializer()
+    tree = TreeSerializer()
+
+    class Meta:
+        model = Scan
+        fields = '__all__'
+
+
 
 class GetBookmarkSerializer(serializers.ModelSerializer):
     user = SafeUserSerializer()

@@ -224,6 +224,7 @@ def disease_api(request, id=None):
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+# Scan History
 @api_view(['GET'])
 @parser_classes([FormParser, MultiPartParser])
 def user_scans_api(request):
@@ -232,6 +233,19 @@ def user_scans_api(request):
     if token is not None:
         if (request.method == 'GET'):
             scan = Scan.objects.all().filter(user_id=user_id)
+            serializer = GetScanSerializer(scan, many=True)
+            return Response(serializer.data)
+    else:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@parser_classes([FormParser, MultiPartParser])
+def tree_scans_api(request, id=None):
+    token = decode_token(request.headers.get('Authorization'))
+    user_id = get_id_from_token(token)
+    if token is not None:
+        if (request.method == 'GET') & (id != None):
+            scan = Scan.objects.all().filter(tree_id=id)
             serializer = GetScanSerializer(scan, many=True)
             return Response(serializer.data)
     else:
@@ -293,13 +307,6 @@ def scan_api(request, id=None):
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     except Exception as e:
                         return Response({"error": str(e)}, status=400)
-
-                # data['user'] = user_id
-                # serializer = ScanSerializer(data=data)
-                # if serializer.is_valid():
-                #     serializer.save()
-                #     return Response('Data Created', status=status.HTTP_201_CREATED)
-                # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -427,3 +434,55 @@ def register(request):
         except Exception as e:
             print(e)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@parser_classes([FormParser, MultiPartParser, JSONParser])
+def tree_api(request, id=None):
+    print(request.headers)
+    token = decode_token(request.headers.get('Authorization'))
+    print(token)
+    user_id = get_id_from_token(token)
+    if token is not None:
+        if (request.method == 'GET') & (id == None):
+            tree = Tree.objects.filter(user_id = user_id)
+            serializer = TreeSerializer(tree, many=True)
+            return Response(serializer.data)
+        if (request.method == 'GET') & (id != None):
+            tree = Tree.objects.filter(id=id)
+            serializer = TreeSerializer(tree, many=True)
+            return Response(serializer.data)
+        if (request.method == 'POST'):
+            try:
+                data = request.data.copy()
+                data['user'] = user_id
+                serializer = TreeSerializer(data=data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                print("Yey error", e)
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if (request.method == 'PUT'):
+            try:
+                instance = Tree.objects.get(id=id)
+                serializer = TreeSerializer(
+                    instance, data=request.data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response('Data Updated', status=status.HTTP_200_OK)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        if (request.method == 'DELETE'):
+            try:
+                instance = Tree.objects.get(id=id)
+                instance.delete()
+                return Response('Data Deleted', status=status.HTTP_204_NO_CONTENT)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

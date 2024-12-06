@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('datetime', models.PositiveBigIntegerField()),
-                ('img', models.ImageField(upload_to=api.models.image_path)),
+                ('img', models.ImageField(upload_to='storage/image')),
                 ('accuracy', models.DecimalField(decimal_places=2, max_digits=5)),
                 ('diagnosis', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.disease')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.user')),
