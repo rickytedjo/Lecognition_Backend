@@ -21,10 +21,6 @@ from ultralyticsplus import YOLO, render_result
 DATA_DIR = 'dataset'
 IMG_SIZE = (224,224)
 
-TEMPLATE_DIR ='asset\comparator'
-templates = os.listdir(TEMPLATE_DIR)
-
-
 def load_data(data_dir):
     images, labels = [], []
     for label in os.listdir(data_dir):
