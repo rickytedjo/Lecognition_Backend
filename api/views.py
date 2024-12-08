@@ -72,17 +72,21 @@ def match(image, threshold=0.5):
         template_gray = cv.cvtColor(template_img, cv.COLOR_BGR2GRAY)
 
         h, w = template_gray.shape
-       
-        image_gray = cv.resize(image_gray, (w, h))
-        resized_template = cv.resize(template_gray, (w, h))
+        for i in range(0,3):
+            image_gray = cv.resize(image_gray, (w, h))
+            resized_template = cv.resize(template_gray, (w, h))
 
-        res = cv.matchTemplate(image_gray, resized_template, cv.TM_CCOEFF_NORMED)
-        res_copy = res.copy()
+        
+            res = cv.matchTemplate(image_gray, resized_template, cv.TM_CCOEFF_NORMED)
+            res_copy = res.copy()
 
-        min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res_copy)
-        # Search threshold
-        if max_val >= threshold:
-            return True
+            min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res_copy)
+            # Search threshold
+            
+            if max_val >= threshold:
+                return True
+            
+            resized_template = cv.rotate(resized_template,cv.ROTATE_90_CLOCKWISE)
 
     return False
 
