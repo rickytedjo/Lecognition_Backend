@@ -15,6 +15,7 @@ from io import BytesIO
 import os
 from keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder; label_encoder = LabelEncoder()
+from ultralyticsplus import YOLO, render_result
 
 DATA_DIR = 'dataset'
 IMG_SIZE = (224,224)
@@ -47,6 +48,13 @@ y_categorical = to_categorical(y_encoded)
 
 model = load_model('saved_model')
 
+
+match_model = YOLO('foduucom/plant-leaf-detection-and-classification')
+match_model.overrides['conf'] = 0.25
+match_model.overrides['iou'] = 0.45
+match_model.overrides['agnostic_nms'] = False
+match_model.overrides['max_det'] = 1000 
+
 def prediction(image):
     if image is None:
         print(f"Error: Image not found")
@@ -62,33 +70,22 @@ def prediction(image):
 
     return disease_name, confidence
 
-def match(image, threshold=0.5):
-    image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
-    image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-    
-    for template in templates:
-        template_img = cv.imread(TEMPLATE_DIR + '/' +str(template))
-        template_img = cv.cvtColor(template_img,cv.COLOR_RGB2BGR)
-        template_gray = cv.cvtColor(template_img, cv.COLOR_BGR2GRAY)
+def match(image):
+    results = match_model.predict(image)
+    dump = []
+    for result in results:
+        boxes = result.boxes  # Access bounding boxes
+        for box in boxes:
+            class_id = int(box.cls)  # Class ID
+            label = match_model.names[class_id]  # Map class ID to label
+            dump.append(label)
 
-        h, w = template_gray.shape
-        for i in range(0,3):
-            image_gray = cv.resize(image_gray, (w, h))
-            resized_template = cv.resize(template_gray, (w, h))
+    if 'mango' in dump:
+        return True
+    else:
+        return False
 
-        
-            res = cv.matchTemplate(image_gray, resized_template, cv.TM_CCOEFF_NORMED)
-            res_copy = res.copy()
 
-            min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res_copy)
-            # Search threshold
-            
-            if max_val >= threshold:
-                return True
-            
-            resized_template = cv.rotate(resized_template,cv.ROTATE_90_CLOCKWISE)
-
-    return False
 
 
 
