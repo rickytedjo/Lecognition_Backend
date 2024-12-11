@@ -291,6 +291,7 @@ def scan_api(request, id=None):
                         print(confidence)
                         if disease.id is None:
                             return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+                        data['datetime'] = int(data['datetime']) if data['datetime'] else int(datetime.now().timestamp())
                         data['user'] = user_id
                         data['desc'] = ''
                         data['disease'] = disease.id
@@ -327,7 +328,7 @@ def scan_api(request, id=None):
                 # Delete image from storage
                 instance.delete()
                 new_scan = Scan.objects.filter(tree_id = tree.id).order_by('datetime').first()
-                tree.last_predicted_disease = new_scan if new_scan else None
+                tree.last_predicted_disease = new_scan.disease if new_scan else None
                 tree.save()
                 return Response('Data Deleted', status=status.HTTP_204_NO_CONTENT)
             except Exception as e:
