@@ -298,7 +298,7 @@ def scan_api(request, id=None):
                         #data['datetime'] = 
                         serializer = ScanSerializer(data=data)
                         if serializer.is_valid():
-                            disease = serializer.save()
+                            serializer.save()
                             return Response({"disease":disease.id,"accuracy":confidence},status=status.HTTP_200_OK)
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     except Exception as e:
