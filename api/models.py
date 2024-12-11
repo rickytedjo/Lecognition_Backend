@@ -32,6 +32,7 @@ class Tree(models.Model):
     longitude = models.FloatField(default=0) # X
     latitude = models.FloatField(default=0) # Y
     image = models.ImageField(upload_to='storage/trees', null= True)
+    last_predicted_disease = models.ForeignKey('Scan', on_delete=models.SET_NULL, null=True,related_name='last_predicted_trees')
 
     class Meta:
         db_table = 'Tree'
@@ -46,7 +47,7 @@ class Tree(models.Model):
         super().save(*args, **kwargs)
 
 class Scan(models.Model):
-    tree = models.ForeignKey(Tree, on_delete=models.CASCADE)
+    tree = models.ForeignKey(Tree, on_delete=models.CASCADE,related_name='scans')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     datetime = models.PositiveBigIntegerField()
     img = models.ImageField(upload_to='storage/scans')
@@ -65,4 +66,7 @@ class Scan(models.Model):
             self.img.name = new_filename
         # Call the original save method
         super().save(*args, **kwargs)
+
+        self.tree.last_predicted_disease = self
+        self.tree.save()
    

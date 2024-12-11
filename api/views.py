@@ -47,8 +47,8 @@ model = load_model('saved_model')
 
 
 match_model = YOLO('foduucom/plant-leaf-detection-and-classification')
-match_model.overrides['conf'] = 0.25
-match_model.overrides['iou'] = 0.45
+match_model.overrides['conf'] = 0.10
+match_model.overrides['iou'] = 0.25
 match_model.overrides['agnostic_nms'] = False
 match_model.overrides['max_det'] = 1000 
 
@@ -298,7 +298,7 @@ def scan_api(request, id=None):
                         #data['datetime'] = 
                         serializer = ScanSerializer(data=data)
                         if serializer.is_valid():
-                            serializer.save()
+                            disease = serializer.save()
                             return Response({"disease":disease.id,"accuracy":confidence},status=status.HTTP_200_OK)
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     except Exception as e:
@@ -323,8 +323,12 @@ def scan_api(request, id=None):
         if (request.method == 'DELETE'):
             try:
                 instance = Scan.objects.get(id=id)
+                tree = Tree.objects.get(id = instance.tree_id)
                 # Delete image from storage
                 instance.delete()
+                new_scan = Scan.objects.filter(tree_id = tree.id).order_by('datetime').first()
+                tree.last_predicted_disease = new_scan if new_scan else None
+                tree.save()
                 return Response('Data Deleted', status=status.HTTP_204_NO_CONTENT)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
