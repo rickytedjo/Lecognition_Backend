@@ -26,7 +26,7 @@ urlpatterns = [
     # Jika access token expired, bisa di refresh dengan refresh token dan dapat refresh token baru
     # Jika refresh token juga expired, token refresh bakal return error 401 atau unauthorized dan client side harus logout
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/media/<path:path>',views.get_media_file),
-]
+    # path('api/media/<path:path>',views.get_media_file),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
 
 urlpatterns = format_suffix_patterns(urlpatterns)
