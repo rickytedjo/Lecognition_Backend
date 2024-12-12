@@ -2,6 +2,8 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.urlpatterns import format_suffix_patterns
 from api import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [ 
     path('api/user/all',views.user_all_api), # GET all
@@ -20,10 +22,11 @@ urlpatterns = [
     path('api/bookmark',views.bookmark_api), # GET all
     path('api/register',views.register),
     path('api/login', views.login),
+    path('api/<path:path>',views.get_media_file),
     # Untuk Mobile, Token harap selalu dicek di client side
     # Jika access token expired, bisa di refresh dengan refresh token dan dapat refresh token baru
     # Jika refresh token juga expired, token refresh bakal return error 401 atau unauthorized dan client side harus logout
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns = format_suffix_patterns(urlpatterns)

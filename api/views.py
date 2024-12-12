@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from Lecognition_Backend.settings import BASE_DIR
 from api.models import *
 from api.serializers import *
 from keras.models import load_model
@@ -16,6 +17,7 @@ import os
 from keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder; label_encoder = LabelEncoder()
 from ultralyticsplus import YOLO, render_result
+from django.http import FileResponse
 
 
 DATA_DIR = 'dataset'
@@ -485,5 +487,17 @@ def tree_api(request, id=None):
                 return Response('Data Deleted', status=status.HTTP_204_NO_CONTENT)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def get_media_file(request, path):
+    token = decode_token(request.headers.get('Authorization'))
+    if token:
+        media_file_path = os.path.join(BASE_DIR, path)
+        if os.path.exists(media_file_path):
+            return FileResponse(open(media_file_path, 'rb'))
+        else:
+            return Response({"error":"Media file not found"}, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
