@@ -490,14 +490,15 @@ def tree_api(request, id=None):
     else:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@api_view(['GET'])
-def get_media_file(request, path):
-    token = decode_token(request.headers.get('Authorization'))
-    if token:
-        media_file_path = os.path.join(BASE_DIR, path)
-        if os.path.exists(media_file_path):
-            return FileResponse(open(media_file_path, 'rb'))
-        else:
-            return Response({"error":"Media file not found"}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+# @api_view(['GET'])
+# def get_media_file(request, path):
+#     token = decode_token(request.headers.get('Authorization'))
+#     if token:
+#         media_file_path = os.path.join(BASE_DIR, path)
+#         if os.path.exists(media_file_path):
+#             return FileResponse(open(media_file_path, 'rb'))
+#         else:
+#             return Response({"error":"Media file not found"}, status=status.HTTP_400_BAD_REQUEST)
+#     else:
+#         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
