@@ -31,7 +31,7 @@ class Tree(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     longitude = models.FloatField(default=0) # X
     latitude = models.FloatField(default=0) # Y
-    image = models.ImageField(upload_to='trees', null= True,max_length=500)
+    image = models.ImageField(upload_to='trees', default='trees/default_tree.jpg',max_length=500)
     last_predicted_disease = models.ForeignKey(Disease, on_delete=models.SET_NULL, null=True)
 
     class Meta:
@@ -39,9 +39,9 @@ class Tree(models.Model):
 
     def save(self, *args, **kwargs):
         # Check if the image is being uploaded
-        if self.image and not kwargs.get('update_fields'):
+        if self.image:
             # Generate a new filename
-            new_filename = str(int(round(datetime.now().timestamp()))) + ' - ' + self.image.name
+            new_filename = str(int(round(datetime.now().timestamp()))) + ' - ' + self.image.name if not 'trees' in self.image.name else self.image.name
             self.image.name = new_filename
         # Call the original save method
         super().save(*args, **kwargs)
