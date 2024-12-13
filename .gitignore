@@ -2,5 +2,7 @@
 .env.production
 .env.dev
 /venv/
-/storage/*
+/storage/trees/*
+!/storage/trees/default_tree.jpg
+/storage/scans/*
 /saved_model/

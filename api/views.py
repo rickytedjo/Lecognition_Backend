@@ -331,7 +331,7 @@ def scan_api(request, id=None):
                 instance.delete()
                 new_scan = Scan.objects.filter(tree_id = tree.id).order_by('datetime').first()
                 tree.last_predicted_disease = new_scan.disease if new_scan else None
-                tree.save()
+                tree.save(update_fields=['last_predicted_disease'])
                 return Response('Data Deleted', status=status.HTTP_204_NO_CONTENT)
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
