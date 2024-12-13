@@ -31,7 +31,7 @@ class Tree(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     longitude = models.FloatField(default=0) # X
     latitude = models.FloatField(default=0) # Y
-    image = models.ImageField(upload_to='storage/trees', null= True,max_length=500)
+    image = models.ImageField(upload_to='trees', null= True,max_length=500)
     last_predicted_disease = models.ForeignKey(Disease, on_delete=models.SET_NULL, null=True)
 
     class Meta:
@@ -50,7 +50,7 @@ class Scan(models.Model):
     tree = models.ForeignKey(Tree, on_delete=models.CASCADE,related_name='scans')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     datetime = models.PositiveBigIntegerField()
-    img = models.ImageField(upload_to='storage/scans',max_length=500)
+    img = models.ImageField(upload_to='scans',max_length=500)
     disease = models.ForeignKey(Disease, on_delete=models.CASCADE)
     accuracy = models.DecimalField(max_digits=5, decimal_places=2)
     desc = models.TextField(blank=True)
