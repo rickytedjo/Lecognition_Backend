@@ -14,6 +14,7 @@ import numpy as np
 from PIL import Image
 from io import BytesIO
 import os
+from datetime import datetime
 from keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder; label_encoder = LabelEncoder()
 from ultralyticsplus import YOLO, render_result
@@ -293,7 +294,7 @@ def scan_api(request, id=None):
                         print(confidence)
                         if disease.id is None:
                             return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
-                        data['datetime'] = int(data['datetime']) if data['datetime'] else int(datetime.now().timestamp())
+                        data['datetime'] = int(datetime.now().timestamp())
                         data['user'] = user_id
                         data['desc'] = ''
                         data['disease'] = disease.id

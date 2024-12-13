@@ -41,7 +41,7 @@ class Tree(models.Model):
         # Check if the image is being uploaded
         if self.image:
             # Generate a new filename
-            new_filename = str(int(round(datetime.now().timestamp()))) + ' - ' + self.image.name if not 'trees' in self.image.name else self.image.name
+            new_filename = str(int(round(datetime.now().timestamp()))) + ' - ' + self.image.name if not 'trees/' in self.image.name else self.image.name
             self.image.name = new_filename
         # Call the original save method
         super().save(*args, **kwargs)
