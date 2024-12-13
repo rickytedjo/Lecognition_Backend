@@ -39,7 +39,7 @@ class Tree(models.Model):
 
     def save(self, *args, **kwargs):
         # Check if the image is being uploaded
-        if self.image:
+        if self.image and not kwargs.get('update_fields'):
             # Generate a new filename
             new_filename = str(int(round(datetime.now().timestamp()))) + ' - ' + self.image.name
             self.image.name = new_filename
@@ -60,13 +60,16 @@ class Scan(models.Model):
 
     def save(self, *args, **kwargs):
         # Check if the image is being uploaded
-        if self.img:
-            # Generate a new filename
-            new_filename = str(int(round(datetime.now().timestamp()))) + ' - ' + self.img.name
-            self.img.name = new_filename
+        if self.pk is None:
+            if self.img:
+                # Generate a new filename
+                new_filename = str(int(round(datetime.now().timestamp()))) + ' - ' + self.img.name
+                self.img.name = new_filename
+
+            self.tree.last_predicted_disease = self.disease
+            self.tree.save()
         # Call the original save method
         super().save(*args, **kwargs)
 
-        self.tree.last_predicted_disease = self.disease
-        self.tree.save()
+        
    
